@@ -1,12 +1,8 @@
 # Generate Green Button Certificate IDs
 
-The UUIDs used for UsagePoint must be constant (should also be constant for ReadingType, LocalTimeParameters, MeterReading). This is necessary so that a user or third party can recognize updates and extensions to the data sets from one Green Button file to the next. The identities of these resources are established when the account is created and doesn’t change over the life of the account. 
-
-Those for each IntervalBlock created should get a new random UUID value. Also, for each new ElectricPowerUsageSummary and ElectricPowerQualitySummary a new UUID is created. If updates to these resources are to be provided, the UUIDs must be preserved or otherwise regenerated.
-
-Generate the UUIDs using RFC4122 (http://www.ietf.org/rfc/rfc4122.txt) which is the recognized standard.
+The Green Button Certification IDs are "version 5" UUIDs using RFC4122 (http://www.ietf.org/rfc/rfc4122.txt) which is the recognized standard.
  
-In making persistent UUIDs that do not need to be stored, the form to use is a one-way hash based on SHA-1 which is a secure non-reversible hash function. The construction of the UUID is called version 5 (note the method below allows you to compute them each time; the algorithm for constructing uuid is in section 4.3 of the RFC). 
+The Green Button Certification ID is a one-way hash based on SHA-1 which is a secure non-reversible hash function. The construction of the UUID is called version 5 (note the method below allows you to compute them each time; the algorithm for constructing uuid is in section 4.3 of the RFC). 
 
    The requirements for these types of UUIDs are as follows:
 
@@ -28,17 +24,21 @@ The form of the UUID recommended for use in ESPI is:
 
 The value of M is 5 for version 5. The value of N is the most significant two bits of that character must be 0b10. That is values of 8,9,a,b are valid values of hex nibble N.
 
-To use this scheme:
-1.	consider meterId as the meter id (another id that is constant with respect to the meter that corresponds to the UsagePoint will do). Then create the “names” for the persistent UUIDs for use in your Green Button installation:
-usagePointName = meterId
-meterReadingName = meterId + “mrWh” this will be a constant for MeterReadings of this UsagePoint of the Wh readings.
-readingTypeName = readingTypeWh  this will be a constant for all GB data you make of that ReadingType
-localTimeParamtersName = localTimeParamtersPT  this will be a constant for all GB data you make that is pacific time zone
-2.	Then generate the corresponding UUIDs by applying SHA-1 to the desired concatenated string:
-3.	Generate the bytes of the UUID = SHA1(namespaceUUIDType + namespace + name) where each term is ordered sequence of bytes concatenated (note leave out formatting and separating characters such as the ‘-‘ in the namespaceUUIDType).
-4.	Then, set the values of M and N:
-M is 13th nibble
-N is upper 2 bits of 17th nibble
-5.	Format the string
 
-The software in this project illustrates how to implement the algorithm.
+Their are two Java classes this project which implement the RFC4122 algorithm:
+
+- GenGBACertId is the main class and provides the arguments required to calculate the Green Button Certificate ID
+- GBACertID is the class that implements the RFC4122 algorithm.
+
+Two run the Java Application perform the following steps:
+- Import the Github repository (https://github.com/greenbuttonalliance/GenGBACertIDs.git into Eclipse
+- Select the GenGBACertId.java file and select "Run As"
+- In the pop-up window select the "1 Java Application" option
+
+When the application completes the following lines will appear in the Eclipse Console Window:
+
+    UUID NameSpace: org.greenbuttonalliance.cert
+    UUID Name: 2016/01/18T20:16:40Z
+    Type 5 UUID: d89df0e7-8108-5b45-bb94-f65d5413f815
+
+The contents of the "Type 5 UUID:" line is the GBA/UL/UCAIug assigned Green Button Certificate ID
